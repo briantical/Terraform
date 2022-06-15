@@ -10,3 +10,5 @@
 
 # Ignored vscode files
 .vscode/
+
+.env

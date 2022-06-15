@@ -1,4 +1,5 @@
 terraform {
+  cloud {}
   required_providers{
     digitalocean ={
         source = "digitalocean/digitalocean"
