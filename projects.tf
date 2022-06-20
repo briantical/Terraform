@@ -3,5 +3,9 @@ resource "digitalocean_project" "terraform" {
   description = "A project to test working with terraform"
   purpose     = "API development"
   environment = "Development"
-  resources   = [digitalocean_droplet.web[count.index].urn]
+  
+  resources   = [
+    for droplet in  digitalocean_droplet.web:
+    droplet.urn
+  ]
 }
