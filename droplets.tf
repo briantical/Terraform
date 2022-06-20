@@ -16,7 +16,7 @@ resource "digitalocean_droplet" "web" {
       host        = self.ipv4_address
       type        = "ssh"
       user        = "root"
-      private_key = file(var.pvt_key)
+      private_key = var.pvt_key
     }
   }
 
