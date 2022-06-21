@@ -4,11 +4,11 @@ resource "digitalocean_droplet" "web" {
   name = var.droplet_names[count.index]
   region = "fra1"
   size = "s-1vcpu-1gb"
-
   ssh_keys = [ 
     data.digitalocean_ssh_key.terraform.id
   ]
 
+  tags = ["briantical","terraform","docker_swarm"]
   connection {
       host        = self.ipv4_address
       type        = "ssh"
@@ -26,8 +26,5 @@ resource "digitalocean_droplet" "web" {
 }
 
 output "droplet_ip_addresses" {
-  value = {
-    for droplet in  digitalocean_droplet.web:
-    droplet.name => droplet.ipv4_address
-  }
+  value = digitalocean_droplet.web[*].ipv4_address
 }

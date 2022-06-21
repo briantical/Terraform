@@ -1,4 +1,4 @@
 variable "droplet_names" {
   type    = list(string)
-  default = ["droplet-one", "droplet-two", "droplet-three"]
+  default = ["Master", "Worker-One", "Worker-Two"]
 }
