@@ -1,18 +1,7 @@
 ---
 - name: "set fact: first Swarm manager host"
   set_fact:
-    first_swarm_manager_host: "{{ groups['tag_SwarmType_manager'][0] }}"
-
-- name: "set fact: list remote_addrs"
-  set_fact:
-    # Create a list of all managers' private ip addresse
-    list_remote_addrs: >-
-      {{ list_remote_addrs | default([]) }} + [ '{{ item }}:2377' ]
-  loop: >-
-    {{ groups['tag_SwarmType_manager'] | map('extract', hostvars, 'ec2_private_ip_address') | list }}
-
-- debug:
-    var: list_remote_addrs
+    first_swarm_manager_host: managers[0]
 
 - name: Joining worker to the swarm
   # https://docs.ansible.com/ansible/latest/modules/docker_swarm_module.html
@@ -20,11 +9,10 @@
     state: join
     timeout: 60
     # Using PRIVATE IP ADDRESS as they are in the same VPC
-    advertise_addr: >-
-      {{ ec2_private_ip_address }}:2377
+    advertise_addr: first_swarm_manager_host:2377
     # hostvars contains all variables related to a host
     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#accessing-information-about-other-hosts-with-magic-variables
     join_token: >-
-      {{ hostvars[first_swarm_manager_host].join_token_worker }}
+      { { join_token_worker } }
     # Using PRIVATE IP ADDRESS as they are in the same VPC
-    remote_addrs: "{{ list_remote_addrs }}"
+    remote_addrs: ["206.81.21.94", "206.81.30.23"]
