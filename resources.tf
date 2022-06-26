@@ -16,5 +16,5 @@ resource "local_file" "ansible_inventory" {
     workers = [for droplet in digitalocean_droplet.web: droplet.ipv4_address if "${droplet.name}" != "${var.droplet_names[0]}"]
     managers = [for droplet in digitalocean_droplet.web: droplet.ipv4_address if "${droplet.name}" == "${var.droplet_names[0]}"]
   })
-  filename = "inventory"
+  filename = "inventories/prod/inventory"
 }

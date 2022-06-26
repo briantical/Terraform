@@ -1,0 +1,9 @@
+[workers]
+swarm-node-0 ansible_host=164.92.132.67
+swarm-node-1 ansible_host=206.81.21.94
+
+[managers]
+swarm-manager-0 ansible_host=164.92.136.203
+
+[all:vars]
+ansible_user=root
