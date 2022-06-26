@@ -1,7 +1,15 @@
 ---
 - name: "set fact: first Swarm manager host"
   set_fact:
-    first_swarm_manager_host: managers[0]
+    first_swarm_manager_host: "{{ groups['managers'][0] }}"
+
+- name: "set fact: list remote_addrs"
+  set_fact:
+    # Create a list of all managers' private ip addresses
+    list_remote_addrs: >-
+      {{ list_remote_addrs | default([]) }} + [ '{{ item }}:2377' ]
+  loop: >-
+    {{ groups['managers'] | map('extract',hostvars,'ansible_host') | list }}
 
 - name: Joining worker to the swarm
   # https://docs.ansible.com/ansible/latest/modules/docker_swarm_module.html
@@ -13,6 +21,6 @@
     # hostvars contains all variables related to a host
     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#accessing-information-about-other-hosts-with-magic-variables
     join_token: >-
-      { { join_token_worker } }
+      {{ hostvars[first_swarm_manager_host].join_token_worker }}
     # Using PRIVATE IP ADDRESS as they are in the same VPC
-    remote_addrs: ["206.81.21.94", "206.81.30.23"]
+    remote_addrs: "{{ list_remote_addrs }}"

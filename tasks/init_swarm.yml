@@ -6,7 +6,7 @@
     - name: Initiating the swarm with default parameters
       # https://docs.ansible.com/ansible/latest/modules/docker_swarm_module.html
       community.general.docker_swarm:
-        advertise_addr: 206.81.17.173
+        advertise_addr: "{{ansible_host}}"
         state: present
       register: init_swarm
 
