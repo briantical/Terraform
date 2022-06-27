@@ -22,7 +22,7 @@ resource "digitalocean_droplet" "web" {
   }
 
   provisioner "local-exec" {
-    command = "cd ../ansible && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} -e 'pub_key=${var.pub_key}' playbook.yml"
+    command = "cd ../../../ansible && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} -e 'pub_key=${var.pub_key}' playbook.yml"
   }
 }
 
