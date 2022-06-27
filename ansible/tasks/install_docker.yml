@@ -9,6 +9,7 @@
       - gnupg-agent
       - software-properties-common
     state: present
+    force_apt_get: yes
 
 - name: Add Docker apt key
   # https://docs.ansible.com/ansible/latest/modules/apt_key_module.html
