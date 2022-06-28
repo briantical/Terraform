@@ -1,38 +1,96 @@
 version: 2.1
 
+defaults: &defaults
+  docker:
+    - image: cimg/base:2022.06
+  working_directory: ~/project
+  environment:
+    TF_IN_AUTOMATION: true
+
+tf-install: &tf-install
+  run:
+    name: Install Terraform
+    command: |
+      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+      sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      sudo apt-get update && sudo apt-get install terraform
+      terraform --version
+
+ansible-install: &ansible-install
+  run:
+    name: Install Ansible
+    command: |
+      sudo apt install software-properties-common
+      sudo add-apt-repository --yes --update ppa:ansible/ansible
+      sudo apt install ansible
+
 jobs:
-  setup_infrastructure:
-    docker:
-      - image: cimg/base:2022.06
+  terraform-init:
+    <<: *defaults
     steps:
       - checkout
+      - *tf-install
+      - *ansible-install
+      - run:
+          name: init
+          working_directory: ~/project/terraform
+          command: terraform init -input=false
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ~/project/terraform
+
+  terraform-plan:
+    <<: *defaults
+    working_directory: ~/project/terraform
+    steps:
+      - attach_workspace:
+          at: .
+      - *tf-install
       - run:
           name: Generate the SSH files
           command: |
             echo $pvt_key >> terraform
             echo $pub_key >> terraform.pub
       - run:
-          name: Install Terraform
-          command: |
-            curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-            sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-            sudo apt-get update && sudo apt-get install terraform
+          name: plan
+          command: terraform -chdir=envs/production plan -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -out=plan.tfplan -input=false
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  terraform-apply-approval:
+    <<: *defaults
+    working_directory: ~/project/terraform
+    steps:
+      - attach_workspace:
+          at: .
+      - *tf-install
+      - *ansible-install
       - run:
-          name: Install Ansible
-          command: |
-            sudo apt install software-properties-common
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible
-      - run:
-          name: Terraform Init
-          command: |
-            terraform init
-      - run:
-          name: Terraform Apply
-          command: |
-            terraform apply -auto-approve -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key"
+          name: apply
+          command: terraform -chdir=envs/production apply -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -input=false -auto-approve plan.tfplan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
 workflows:
   version: 2.1
-  build:
+  setup_infrastructure:
     jobs:
-      - setup_infrastructure
+      - terraform-init:
+          filters:
+            branches:
+              only: master
+      - terraform-plan:
+          requires:
+            - terraform-init
+      - hold-for-approval:
+          type: approval
+          requires:
+            - terraform-plan
+      - terraform-apply-approval:
+          requires:
+            - hold-for-approval
