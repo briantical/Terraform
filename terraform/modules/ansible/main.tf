@@ -8,3 +8,18 @@ resource "local_file" "ansible_inventory" {
   })
   filename = "../../../ansible/inventories/${var.environment}/inventory"
 }
+
+
+resource "null_resource" "ansible_provisioner" {
+  triggers = {
+      build_number = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = "cd ../../../ansible && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i 'inventories/${var.environment}/inventory' --private-key ${var.pvt_key} -e 'pub_key=${var.pub_key}' playbook.yml"
+  }
+
+  depends_on = [
+    local_file.ansible_inventory
+  ]
+}

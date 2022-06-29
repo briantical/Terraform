@@ -1,0 +1,4 @@
+---
+- hosts: managers[0]
+  tasks:
+    - include_tasks: tasks/deploy_example_voting_app_stack.yml
