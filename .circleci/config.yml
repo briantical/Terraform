@@ -28,21 +28,19 @@ jobs:
   terraform-init:
     <<: *defaults
     steps:
-      - checkout
+      - checkout:
+          path: ~/project
       - *tf-install
-      - *ansible-install
       - run:
-          name: init
-          working_directory: ~/project/terraform
-          command: terraform init -input=false
+          name: terraform init
+          command: terraform -chdir=terraform/envs/production init -input=false
       - persist_to_workspace:
           root: .
           paths:
-            - ~/project/terraform
+            - .
 
   terraform-plan:
     <<: *defaults
-    working_directory: ~/project/terraform
     steps:
       - attach_workspace:
           at: .
@@ -50,11 +48,11 @@ jobs:
       - run:
           name: Generate the SSH files
           command: |
-            echo $pvt_key >> terraform
-            echo $pub_key >> terraform.pub
+            echo $pvt_key >> terraform/envs/production/terraform
+            echo $pub_key >> terraform/envs/production/terraform.pub
       - run:
-          name: plan
-          command: terraform -chdir=envs/production plan -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -out=plan.tfplan -input=false
+          name: terraform plan
+          command: terraform -chdir=terraform/envs/production plan -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -input=false
       - persist_to_workspace:
           root: .
           paths:
@@ -62,15 +60,14 @@ jobs:
 
   terraform-apply-approval:
     <<: *defaults
-    working_directory: ~/project/terraform
     steps:
       - attach_workspace:
           at: .
       - *tf-install
       - *ansible-install
       - run:
-          name: apply
-          command: terraform -chdir=envs/production apply -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -input=false -auto-approve plan.tfplan
+          name: terraform apply
+          command: terraform -chdir=terraform/envs/production apply -auto-approve -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -input=false
       - persist_to_workspace:
           root: .
           paths:

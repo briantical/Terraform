@@ -26,7 +26,8 @@ module "ansible" {
   environment = var.environment
 
   depends_on = [
-    module.droplets.droplets
+    module.droplets.droplets,
+    module.balancers
   ]
 }
 
