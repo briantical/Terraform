@@ -48,11 +48,11 @@ jobs:
       - run:
           name: Generate the SSH files
           command: |
-            echo $pvt_key >> terraform/envs/production/terraform
-            echo $pub_key >> terraform/envs/production/terraform.pub
+            echo $pvt_key >> id_rsa
+            echo $pub_key >> id_rsa.pub
       - run:
           name: terraform plan
-          command: terraform -chdir=terraform/envs/production plan -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -input=false
+          command: terraform -chdir=terraform/envs/production plan -var "do_token=$do_token" -var "pvt_key='~/project/id_rsa'" -var "pub_key='~/project/id_rsa.pub'" -input=false -out=tfplan
       - persist_to_workspace:
           root: .
           paths:
@@ -67,7 +67,7 @@ jobs:
       - *ansible-install
       - run:
           name: terraform apply
-          command: terraform -chdir=terraform/envs/production apply -auto-approve -var "do_token=$do_token" -var "pvt_key=$path_to_pvt_key" -var "pub_key=$path_to_pub_key" -input=false
+          command: terraform -chdir=terraform/envs/production apply tfplan
       - persist_to_workspace:
           root: .
           paths:

@@ -1,6 +1,0 @@
-[workers]
-swarm-node-0 ansible_host=159.65.123.54 ansible_user=root
-swarm-node-1 ansible_host=46.101.105.214 ansible_user=root
-
-[managers]
-swarm-manager-0 ansible_host=159.89.107.198 ansible_user=root
