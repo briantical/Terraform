@@ -11,7 +11,6 @@ resource "local_file" "ansible_inventory" {
 
 
 resource "null_resource" "ansible_provisioner" {
-  ansible_files = fileset("../../../ansible", "**")
   triggers = {
       # https://stackoverflow.com/a/66501021
       ansible_sha1 = sha1(join("", [for f in fileset("../../../ansible", "**"): filesha1("../../../ansible/${f}") if f != "../../../ansible/inventories/${var.environment}/inventory"]))
