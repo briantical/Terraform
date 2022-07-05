@@ -12,7 +12,8 @@ resource "local_file" "ansible_inventory" {
 
 resource "null_resource" "ansible_provisioner" {
   triggers = {
-      build_number = "${timestamp()}"
+      # https://stackoverflow.com/a/66501021
+      ansible_sha1 = sha1(join("", [for f in fileset("../../../ansible", "**"): filesha1(f)]))
   }
 
   provisioner "local-exec" {
