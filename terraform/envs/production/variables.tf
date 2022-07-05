@@ -13,3 +13,7 @@ variable "droplet_names" {
   type    = list(string)
   default = ["master", "worker-one", "worker-two"]
 }
+
+variable "ansible_checksum" {}
+
+variable "terraform_checksum" {}

@@ -24,6 +24,15 @@ ansible-install: &ansible-install
       sudo add-apt-repository --yes --update ppa:ansible/ansible
       sudo apt install ansible
 
+get-checksum: &get-checksum
+  run:
+    name: Checksum
+    command: |
+      md5HASH_ANSIBLE=($(md5sum ansible/* | cut -d ' ' -f 1))
+      echo 'export ANSIBLE_CHECKSUM=$md5HASH_ANSIBLE' >> $BASH_ENV
+      md5HASH_TERRAFORM=($(md5sum terraform/* | cut -d ' ' -f 1))
+      echo 'export TERRAFORM_CHECKSUM=$md5HASH_TERRAFORM' >> $BASH_ENV
+
 jobs:
   terraform-init:
     <<: *defaults
@@ -45,6 +54,7 @@ jobs:
       - attach_workspace:
           at: .
       - *tf-install
+      - *get-checksum
       - run:
           name: Generate the SSH files
           command: |
@@ -52,7 +62,7 @@ jobs:
             echo $pub_key >> id_rsa.pub
       - run:
           name: terraform plan
-          command: terraform -chdir=terraform/envs/production plan -var "do_token=$do_token" -var "pvt_key='~/project/id_rsa'" -var "pub_key='~/project/id_rsa.pub'" -input=false -out=tfplan
+          command: terraform -chdir=terraform/envs/production plan -var "do_token=$do_token" -var "pvt_key='~/project/id_rsa'" -var "pub_key='~/project/id_rsa.pub'" -var "ansible_checksum=$ANSIBLE_CHECKSUM" -var "terraform_checksum=$TERRAFORM_CHECKSUM" -input=false -out=tfplan
       - persist_to_workspace:
           root: .
           paths:

@@ -10,4 +10,8 @@ variable "environment" {}
 
 variable "droplet_names" {}
 
+variable "ansible_checksum" {}
+
+variable "terraform_checksum" {}
+
 

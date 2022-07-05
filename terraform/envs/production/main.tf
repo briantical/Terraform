@@ -24,6 +24,8 @@ module "ansible" {
   droplet_names = var.droplet_names
   droplets = module.droplets.droplets
   environment = var.environment
+  ansible_checksum=var.ansible_checksum
+  terraform_checksum=var.terraform_checksum
 
   depends_on = [
     module.droplets.droplets,
