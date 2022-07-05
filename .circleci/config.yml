@@ -28,9 +28,9 @@ get-checksum: &get-checksum
   run:
     name: Checksum
     command: |
-      md5HASH_ANSIBLE=($(md5sum ansible/* | cut -d ' ' -f 1))
+      md5HASH_ANSIBLE=($(find ansible -type f -exec md5sum {} \; | sort -k 2 | md5sum))
       echo 'export ANSIBLE_CHECKSUM=$md5HASH_ANSIBLE' >> $BASH_ENV
-      md5HASH_TERRAFORM=($(md5sum terraform/* | cut -d ' ' -f 1))
+      md5HASH_TERRAFORM=($(find terraform -type f -exec md5sum {} \; | sort -k 2 | md5sum))
       echo 'export TERRAFORM_CHECKSUM=$md5HASH_TERRAFORM' >> $BASH_ENV
 
 jobs:
