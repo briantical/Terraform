@@ -7,10 +7,6 @@ resource "local_file" "ansible_inventory" {
     managers = [for droplet in var.droplets: droplet.ipv4_address if "${droplet.name}" == "${var.droplet_names[0]}"]
   })
   filename = "../../../ansible/inventories/${var.environment}/inventory"
-
-  depends_on = [
-    module.droplets.droplets,
-  ]
 }
 
 
