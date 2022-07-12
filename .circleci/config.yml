@@ -20,8 +20,8 @@ ansible-install: &ansible-install
   run:
     name: Install Ansible
     command: |
-      pip install pipenv
-      pipenv install ansible boto boto3 botocore
+      pip -V
+      pip install ansible boto boto3 botocore
       ansible --version
 
 get-checksum: &get-checksum
