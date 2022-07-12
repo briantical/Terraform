@@ -2,7 +2,7 @@ version: 2.1
 
 defaults: &defaults
   docker:
-    - image: cimg/base:2022.06
+    - image: cimg/python:3.9
   working_directory: ~/project
   environment:
     TF_IN_AUTOMATION: true
