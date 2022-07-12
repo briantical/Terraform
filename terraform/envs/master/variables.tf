@@ -6,7 +6,7 @@ variable "pub_key" {}
 
 variable "environment" {
   type = string
-  default = "production"
+  default = "master"
 }
 
 variable "droplet_names" {

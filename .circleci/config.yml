@@ -42,7 +42,7 @@ jobs:
       - *tf-install
       - run:
           name: terraform init
-          command: terraform -chdir=terraform/envs/production init -input=false
+          command: terraform -chdir=terraform/envs/$CIRCLE_BRANCH init -input=false
       - persist_to_workspace:
           root: .
           paths:
@@ -62,7 +62,7 @@ jobs:
             echo $pub_key >> id_rsa.pub
       - run:
           name: terraform plan
-          command: terraform -chdir=terraform/envs/production plan -var "do_token=$do_token" -var "pvt_key='~/project/id_rsa'" -var "pub_key='~/project/id_rsa.pub'" -var "ansible_checksum=$ANSIBLE_CHECKSUM" -var "terraform_checksum=$TERRAFORM_CHECKSUM" -input=false -out=tfplan
+          command: terraform -chdir=terraform/envs/$CIRCLE_BRANCH plan -var "do_token=$do_token" -var "pvt_key='~/project/id_rsa'" -var "pub_key='~/project/id_rsa.pub'" -var "ansible_checksum=$ANSIBLE_CHECKSUM" -var "terraform_checksum=$TERRAFORM_CHECKSUM" -input=false -out=tfplan
       - persist_to_workspace:
           root: .
           paths:
@@ -77,7 +77,7 @@ jobs:
       - *ansible-install
       - run:
           name: terraform apply
-          command: terraform -chdir=terraform/envs/production apply tfplan
+          command: terraform -chdir=terraform/envs/$CIRCLE_BRANCH apply tfplan
       - persist_to_workspace:
           root: .
           paths:
